@@ -72,6 +72,62 @@ export function render(ctx: CanvasRenderingContext2D, state: GameState) {
     ctx.fillRect(barX, barY, barW * (p.hp / 5), barH);
   }
 
+  // Airstrikes
+  if (state.airstrikes) {
+    for (const strike of state.airstrikes) {
+      ctx.save();
+      if (strike.phase === 'warning') {
+        // Pulsing red target zone
+        const pulse = 0.4 + 0.3 * Math.sin(Date.now() * 0.015);
+        ctx.globalAlpha = pulse;
+        ctx.fillStyle = 'rgba(255, 40, 40, 0.35)';
+        ctx.beginPath();
+        ctx.arc(strike.pos.x, strike.pos.y, strike.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = pulse + 0.2;
+        ctx.strokeStyle = 'rgba(255, 60, 60, 0.8)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Crosshair
+        ctx.strokeStyle = 'rgba(255, 80, 80, 0.6)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(strike.pos.x - strike.radius, strike.pos.y);
+        ctx.lineTo(strike.pos.x + strike.radius, strike.pos.y);
+        ctx.moveTo(strike.pos.x, strike.pos.y - strike.radius);
+        ctx.lineTo(strike.pos.x, strike.pos.y + strike.radius);
+        ctx.stroke();
+      } else {
+        // Explosion
+        const progress = 1 - (strike.ticksLeft / 12);
+        const r = strike.radius * (0.6 + progress * 0.6);
+
+        ctx.shadowColor = 'rgba(255, 100, 0, 1)';
+        ctx.shadowBlur = 40;
+
+        // Outer fireball
+        ctx.globalAlpha = 1 - progress * 0.7;
+        const gradient = ctx.createRadialGradient(
+          strike.pos.x, strike.pos.y, 0,
+          strike.pos.x, strike.pos.y, r
+        );
+        gradient.addColorStop(0, 'rgba(255, 255, 200, 1)');
+        gradient.addColorStop(0.3, 'rgba(255, 160, 30, 0.9)');
+        gradient.addColorStop(0.7, 'rgba(255, 50, 0, 0.6)');
+        gradient.addColorStop(1, 'rgba(180, 0, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(strike.pos.x, strike.pos.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
   // Game over overlay
   if (state.gameOver) {
     ctx.fillStyle = 'rgba(0,0,0,0.7)';

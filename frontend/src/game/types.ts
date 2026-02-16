@@ -28,10 +28,20 @@ export interface Obstacle {
   height: number;
 }
 
+export interface Airstrike {
+  pos: Vec2;
+  radius: number;
+  ownerId: number;
+  color: string;
+  ticksLeft: number;
+  phase: 'warning' | 'explode';
+}
+
 export interface GameState {
   players: Player[];
   bullets: Bullet[];
   obstacles: Obstacle[];
+  airstrikes: Airstrike[];
   winner: number | null;
   gameOver: boolean;
 }
