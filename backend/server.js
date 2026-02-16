@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const {
   createInitialState, movePlayer, shoot, updateBullets,
   triggerAirstrike, updateAirstrikes,
+  triggerLaser, updateLasers,
 } = require('./game-engine');
 
 const PORT = process.env.PORT || 8080;
@@ -112,6 +113,7 @@ function gameTick(room) {
 
   updateBullets(room.state);
   updateAirstrikes(room.state);
+  updateLasers(room.state);
 
   broadcastToRoom(room, { type: 'state_update', state: room.state });
 
@@ -298,6 +300,17 @@ wss.on('connection', (ws) => {
           rotate: msg.rotate || 0,
           shoot: !!msg.shoot,
         };
+        break;
+      }
+
+      case 'laser': {
+        if (!currentRoom || currentRoom.phase !== 'playing') break;
+        const client = currentRoom.clients.get(playerId);
+        if (!client || client.slot === null) break;
+        const ok = triggerLaser(currentRoom.state, client.slot);
+        if (!ok) {
+          sendTo(ws, { type: 'error', message: 'Laser already used!' });
+        }
         break;
       }
 

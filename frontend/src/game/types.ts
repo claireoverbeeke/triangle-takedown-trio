@@ -37,11 +37,21 @@ export interface Airstrike {
   phase: 'warning' | 'explode';
 }
 
+export interface Laser {
+  start: Vec2;
+  end: Vec2;
+  ownerId: number;
+  color: string;
+  glowColor: string;
+  ticksLeft: number;
+}
+
 export interface GameState {
   players: Player[];
   bullets: Bullet[];
   obstacles: Obstacle[];
   airstrikes: Airstrike[];
+  lasers: Laser[];
   winner: number | null;
   gameOver: boolean;
 }

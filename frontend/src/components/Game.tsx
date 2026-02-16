@@ -11,24 +11,28 @@ interface GameProps {
   phase: string;
   onInput: (forward: number, rotate: number, shoot: boolean) => void;
   onAirstrike: () => void;
+  onLaser: () => void;
   onRestart: () => void;
 }
 
-export default function Game({ gameState, mySlot, winner, phase, onInput, onAirstrike, onRestart }: GameProps) {
+export default function Game({ gameState, mySlot, winner, phase, onInput, onAirstrike, onLaser, onRestart }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const stateRef = useRef<GameState>(gameState);
   const phaseRef = useRef(phase);
   const onInputRef = useRef(onInput);
   const onAirstrikeRef = useRef(onAirstrike);
+  const onLaserRef = useRef(onLaser);
   const onRestartRef = useRef(onRestart);
   const keySequence = useRef<string[]>([]);
+  const laserSequence = useRef<string[]>([]);
   const [airstrikeReady, setAirstrikeReady] = useState(true);
 
   stateRef.current = gameState;
   phaseRef.current = phase;
   onInputRef.current = onInput;
   onAirstrikeRef.current = onAirstrike;
+  onLaserRef.current = onLaser;
   onRestartRef.current = onRestart;
 
   // Track if our player has used their airstrike
@@ -47,7 +51,7 @@ export default function Game({ gameState, mySlot, winner, phase, onInput, onAirs
         onRestartRef.current();
       }
 
-      // Detect "1234" sequence for airstrike
+      // Detect "1234" for airstrike
       const AIRSTRIKE_CODE = ['1', '2', '3', '4'];
       if (AIRSTRIKE_CODE.includes(e.key)) {
         keySequence.current.push(e.key);
@@ -62,6 +66,23 @@ export default function Game({ gameState, mySlot, winner, phase, onInput, onAirs
         }
       } else {
         keySequence.current = [];
+      }
+
+      // Detect "67" for laser
+      const LASER_CODE = ['6', '7'];
+      if (LASER_CODE.includes(e.key)) {
+        laserSequence.current.push(e.key);
+        if (laserSequence.current.length > 2) {
+          laserSequence.current = laserSequence.current.slice(-2);
+        }
+        if (laserSequence.current.length === 2 &&
+            laserSequence.current.every((k, i) => k === LASER_CODE[i]) &&
+            phaseRef.current === 'playing') {
+          onLaserRef.current();
+          laserSequence.current = [];
+        }
+      } else {
+        laserSequence.current = [];
       }
     };
     const onUp = (e: KeyboardEvent) => KEYS.delete(e.key.toLowerCase());

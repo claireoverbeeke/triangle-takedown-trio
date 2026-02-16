@@ -187,6 +187,10 @@ export function useMultiplayer() {
     send({ type: 'airstrike' });
   }, [send]);
 
+  const sendLaser = useCallback(() => {
+    send({ type: 'laser' });
+  }, [send]);
+
   const restart = useCallback(() => {
     send({ type: 'restart' });
     setWinner(null);
@@ -205,6 +209,6 @@ export function useMultiplayer() {
   return {
     phase, playerId, roomId, lobby, gameState, winner, rooms, error, mySlot, connected,
     connect, disconnect, createRoom, joinRoom, selectCorner, startGame,
-    sendInput, sendAirstrike, refreshRooms, restart,
+    sendInput, sendAirstrike, sendLaser, refreshRooms, restart,
   };
 }

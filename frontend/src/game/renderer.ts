@@ -128,6 +128,48 @@ export function render(ctx: CanvasRenderingContext2D, state: GameState) {
     }
   }
 
+  // Lasers
+  if (state.lasers) {
+    for (const laser of state.lasers) {
+      ctx.save();
+      const fade = Math.min(1, laser.ticksLeft / 5);
+      ctx.globalAlpha = fade;
+
+      // Outer glow
+      ctx.shadowColor = laser.color;
+      ctx.shadowBlur = 40;
+      ctx.strokeStyle = laser.color;
+      ctx.lineWidth = 14;
+      ctx.globalAlpha = fade * 0.3;
+      ctx.beginPath();
+      ctx.moveTo(laser.start.x, laser.start.y);
+      ctx.lineTo(laser.end.x, laser.end.y);
+      ctx.stroke();
+
+      // Mid beam
+      ctx.shadowBlur = 20;
+      ctx.strokeStyle = laser.glowColor;
+      ctx.lineWidth = 6;
+      ctx.globalAlpha = fade * 0.7;
+      ctx.beginPath();
+      ctx.moveTo(laser.start.x, laser.start.y);
+      ctx.lineTo(laser.end.x, laser.end.y);
+      ctx.stroke();
+
+      // Core beam (white-hot)
+      ctx.shadowBlur = 10;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = fade;
+      ctx.beginPath();
+      ctx.moveTo(laser.start.x, laser.start.y);
+      ctx.lineTo(laser.end.x, laser.end.y);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+  }
+
   // Game over overlay
   if (state.gameOver) {
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
