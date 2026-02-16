@@ -47,14 +47,15 @@ export default function Game({ gameState, mySlot, winner, phase, onInput, onAirs
         onRestartRef.current();
       }
 
-      // Detect "333" sequence for airstrike
-      if (e.key === '3') {
-        keySequence.current.push('3');
-        if (keySequence.current.length > 3) {
-          keySequence.current = keySequence.current.slice(-3);
+      // Detect "1234" sequence for airstrike
+      const AIRSTRIKE_CODE = ['1', '2', '3', '4'];
+      if (AIRSTRIKE_CODE.includes(e.key)) {
+        keySequence.current.push(e.key);
+        if (keySequence.current.length > 4) {
+          keySequence.current = keySequence.current.slice(-4);
         }
-        if (keySequence.current.length === 3 &&
-            keySequence.current.every((k) => k === '3') &&
+        if (keySequence.current.length === 4 &&
+            keySequence.current.every((k, i) => k === AIRSTRIKE_CODE[i]) &&
             phaseRef.current === 'playing') {
           onAirstrikeRef.current();
           keySequence.current = [];
@@ -115,9 +116,6 @@ export default function Game({ gameState, mySlot, winner, phase, onInput, onAirs
       <div className="flex gap-6 text-sm font-mono text-muted-foreground">
         <span><kbd className="px-1 border border-border rounded text-primary">W</kbd><kbd className="px-1 border border-border rounded text-primary">A</kbd><kbd className="px-1 border border-border rounded text-primary">S</kbd><kbd className="px-1 border border-border rounded text-primary">D</kbd> Move</span>
         <span><kbd className="px-1 border border-border rounded text-primary">Space</kbd> Shoot</span>
-        <span className={airstrikeReady ? 'text-red-400' : 'text-muted-foreground/40'}>
-          <kbd className="px-1 border border-border rounded text-red-400">3</kbd><kbd className="px-1 border border-border rounded text-red-400">3</kbd><kbd className="px-1 border border-border rounded text-red-400">3</kbd> Airstrike{!airstrikeReady && ' (used)'}
-        </span>
         {phase === 'ended' && (
           <span><kbd className="px-1 border border-border rounded text-primary">R</kbd> Back to Lobby</span>
         )}
